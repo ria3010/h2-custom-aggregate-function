@@ -52,6 +52,8 @@ abstract class AggregateData {
         case EVERY:
             return new AggregateDataDefault(aggregateType, dataType);
         case SUM:
+        /*DBSI - include RANGE*/
+        case RANGE:
         case AVG:
         case STDDEV_POP:
         case STDDEV_SAMP:

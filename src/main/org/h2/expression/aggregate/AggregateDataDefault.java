@@ -24,6 +24,13 @@ class AggregateDataDefault extends AggregateData {
     private long count;
     private Value value;
     private double m2, mean;
+    /*DBSI - initialize variables*/
+    private int cnt = 0;
+    private Value min;
+    private Value max;
+    private Value range;
+    private  Value val;
+
 
     /**
      * @param aggregateType the type of the aggregate operation
@@ -48,6 +55,10 @@ class AggregateDataDefault extends AggregateData {
                 v = v.convertTo(value.getValueType());
                 value = value.add(v);
             }
+            break;
+        /*DBSI- RANGE function*/
+        case RANGE:
+            value = range(database, v);
             break;
         case AVG:
             if (value == null) {
@@ -119,12 +130,33 @@ class AggregateDataDefault extends AggregateData {
             DbException.throwInternalError("type=" + aggregateType);
         }
     }
+    /*DBSI- RANGE function- picks min and max of a column value and returns range by subtracting max from min*/
+    private Value range(Database database, Value v) {
+
+        if (cnt == 0) {
+            val = v;
+            max = v;
+            min = v;
+        }
+        else {
+            if (database.compare(v, min) < 0) {
+                min = v;
+            } else if (database.compare(v, max) > 0) {
+                max = v;
+            }
+            range = max.subtract(min);
+        }
+        cnt++;
+        return range;
+    }
 
     @Override
     Value getValue(Database database, int dataType) {
         Value v = null;
         switch (aggregateType) {
         case SUM:
+        /*DBSI - added RANGE getValue*/
+        case RANGE:
         case MIN:
         case MAX:
         case BIT_OR:

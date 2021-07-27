@@ -154,5 +154,8 @@ public enum AggregateType {
      * The aggregate type for JSON_ARRAYAGG(expression).
      */
     JSON_ARRAYAGG,
+    /*DBSI- The aggregate type for RANGE(expression)*/
+    RANGE,
+
 
 }
