@@ -91,6 +91,8 @@ public class Aggregate extends AbstractAggregate implements ExpressionWithFlags 
          */
         addAggregate("COUNT", AggregateType.COUNT);
         addAggregate("SUM", AggregateType.SUM);
+        /*DBSI-added aggregate RANGE type*/
+        addAggregate("RANGE", AggregateType.RANGE);
         addAggregate("MIN", AggregateType.MIN);
         addAggregate("MAX", AggregateType.MAX);
         addAggregate("AVG", AggregateType.AVG);
@@ -414,7 +416,10 @@ public class Aggregate extends AbstractAggregate implements ExpressionWithFlags 
             }
             break;
         case SUM:
-        case AVG:
+        /*DBSI-switch case RANGE*/
+        case RANGE:
+
+            case AVG:
         case STDDEV_POP:
         case STDDEV_SAMP:
         case VAR_POP:
@@ -761,6 +766,18 @@ public class Aggregate extends AbstractAggregate implements ExpressionWithFlags 
             }
             break;
         }
+        /*DBSI-handling RANGE exceptions*/
+            case RANGE: {
+                int dataType = type.getValueType();
+                if (dataType == Value.BOOLEAN) {
+                    throw DbException.get(ErrorCode.UNKNOWN_DATA_TYPE_1, getSQL(false));
+                } else if (!DataType.supportsAdd(dataType)) {
+                    throw DbException.get(ErrorCode.UNKNOWN_DATA_TYPE_1, getSQL(false));
+                } else {
+                    type = TypeInfo.getTypeInfo(DataType.getAddProofType(dataType));
+                }
+                break;
+            }
         case AVG:
             if (!DataType.supportsAdd(type.getValueType())) {
                 throw DbException.get(ErrorCode.SUM_OR_AVG_ON_WRONG_DATATYPE_1, getSQL(false));
@@ -857,7 +874,11 @@ public class Aggregate extends AbstractAggregate implements ExpressionWithFlags 
         case SUM:
             text = "SUM";
             break;
-        case MIN:
+        /*DBSI- getsql() text required*/
+        case RANGE:
+            text = "RANGE";
+            break;
+            case MIN:
             text = "MIN";
             break;
         case MAX:
